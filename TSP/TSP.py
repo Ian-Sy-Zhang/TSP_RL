@@ -115,13 +115,20 @@ def genetic_algorithm(filename, pop_size, num_generations, mutation_rate):
     return best_route, best_distance
 
 
-# 遗传算法参数
-filename = '../TSP.csv'
-pop_size = 100
-num_generations = 500
-mutation_rate = 0.01
+# 新的函数，用于运行遗传算法
+def run_genetic_algorithm(filename, pop_size=100, num_generations=500, mutation_rate=0.01):
+    best_route, best_distance = genetic_algorithm(filename, pop_size, num_generations, mutation_rate)
+    print(f"The best route found is: {best_route}")
+    print(f"With a total distance of: {best_distance}")
 
-# 运行遗传算法
-best_route, best_distance = genetic_algorithm(filename, pop_size, num_generations, mutation_rate)
-print(f"The best route found is: {best_route}")
-print(f"With a total distance of: {best_distance}")
+# 主程序入口点
+if __name__ == "__main__":
+    # 遗传算法参数
+    filename = '../TSP.csv'  # CSV文件的路径
+    pop_size = 100  # 种群大小
+    num_generations = 500  # 代数
+    mutation_rate = 0.01  # 变异率
+
+    # 运行遗传算法
+    run_genetic_algorithm(filename, pop_size, num_generations, mutation_rate)
+
