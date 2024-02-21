@@ -1,18 +1,21 @@
 import numpy as np
-import pandas as pd
 import random
 from itertools import permutations
+import csv
+
 
 # 计算两点之间的距离
 def calculate_distance(point1, point2):
-    return np.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
+    return np.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
+
 
 # 计算路线的总距离
 def total_distance(route, points):
     distance = 0
     for i in range(len(route)):
-        distance += calculate_distance(points[route[i-1]], points[route[i]])
+        distance += calculate_distance(points[route[i - 1]], points[route[i]])
     return distance
+
 
 # 创建初始种群
 def create_initial_population(pop_size, num_points):
@@ -23,6 +26,7 @@ def create_initial_population(pop_size, num_points):
         population.append(individual)
     return population
 
+
 # 选择
 def select_parents(population, fitness, num_parents):
     parents = []
@@ -31,6 +35,7 @@ def select_parents(population, fitness, num_parents):
         parents.append(population[max_fitness_idx])
         fitness[max_fitness_idx] = 99999999999
     return parents
+
 
 # 交叉
 def crossover(parents, offspring_size):
@@ -47,6 +52,7 @@ def crossover(parents, offspring_size):
         offspring.append(child)
     return offspring
 
+
 # 去除重复的元素并添加遗漏的元素
 def fix(child):
     missing = set(range(len(child))) - set(child)
@@ -54,6 +60,7 @@ def fix(child):
     for d in duplicates:
         i = child.index(d)
         child[i] = missing.pop()
+
 
 # 变异
 def mutate(offspring):
@@ -68,11 +75,19 @@ def mutate(offspring):
                     swapped = True
     return offspring
 
+
 # 加载客户点
 def load_data(filename):
-    df = pd.read_csv(filename)
-    points = df[['XCOORD.', 'YCOORD.']].values
+    points = []
+    with open(filename, 'r') as csvfile:
+        csvreader = csv.reader(csvfile)
+        headers = next(csvreader)  # 跳过表头
+        for row in csvreader:
+            if row:  # 确保行不是空的
+                x, y = float(row[0]), float(row[1])  # 假设XCOORD.是第一列，YCOORD.是第二列
+                points.append((x, y))
     return points
+
 
 # 主函数
 def genetic_algorithm(filename, pop_size, num_generations, mutation_rate):
@@ -91,7 +106,7 @@ def genetic_algorithm(filename, pop_size, num_generations, mutation_rate):
 
         print(f"Generation {generation} - Best Distance: {best_distance}")
 
-        parents = select_parents(population, fitness, num_parents=pop_size//2)
+        parents = select_parents(population, fitness, num_parents=pop_size // 2)
         offspring = crossover(parents, offspring_size=pop_size - len(parents))
         offspring = mutate(offspring)
         population[0:len(parents)] = parents
@@ -99,8 +114,9 @@ def genetic_algorithm(filename, pop_size, num_generations, mutation_rate):
 
     return best_route, best_distance
 
+
 # 遗传算法参数
-filename = './TSP.csv'
+filename = '../TSP.csv'
 pop_size = 100
 num_generations = 500
 mutation_rate = 0.01
