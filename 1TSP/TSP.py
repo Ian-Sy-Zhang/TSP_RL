@@ -84,7 +84,7 @@ def load_data(filename):
         headers = next(csvreader)  # 跳过表头
         for row in csvreader:
             if row:  # 确保行不是空的
-                x, y = float(row[0]), float(row[1])  # 假设XCOORD.是第一列，YCOORD.是第二列
+                x, y = float(row[1]), float(row[2])  # XCOORD YCOORD
                 points.append((x, y))
     return points
 

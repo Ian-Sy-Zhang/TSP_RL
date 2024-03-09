@@ -22,8 +22,8 @@ def load_data(filename):
         csvreader = csv.reader(csvfile)
         next(csvreader)  # 跳过头部
         for row in csvreader:
-            points.append((float(row[0]), float(row[1])))
-            profits.append(float(row[2]))
+            x, y = float(row[1]), float(row[2])  # XCOORD YCOORD
+            profits.append(float(row[3]))   # PROFIT
     return points, profits
 
 
