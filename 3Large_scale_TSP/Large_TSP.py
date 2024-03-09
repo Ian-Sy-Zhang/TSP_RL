@@ -32,10 +32,12 @@ def total_distance(route, points):
 
 def total_distance_1(route):
     # 计算路径总距离
-    distance = calculate_distance(route[-1], route[0])
+    # distance = calculate_distance(route[-1], route[0])
+    distance = 0
     for i in range(len(route) - 1):
         distance += calculate_distance(route[i], route[i + 1])
     return distance
+
 
 # K-means 聚类函数
 def cluster_points(points, num_clusters):
@@ -114,8 +116,8 @@ def _________________________________():
 
 
 def cluster_create_route(representatives):
-    route = list(range(len(representatives)))
-    random.shuffle(route)
+    route = list(representatives.keys())  # 获取所有cluster编号的列表
+    random.shuffle(route)  # 随机打乱列表，生成一条随机路线
     return route
 
 
@@ -126,16 +128,21 @@ def cluster_create_initial_population(pop_size, representatives):
 def cluster_rank_routes(population, representatives):
     fitness_results = {}
     for i, individual in enumerate(population):
-        fitness_results[i] = 1 / float(total_distance_cluster(individual, representatives))
+        # 计算拼接后的点的列表的总距离的倒数作为适应度
+        fitness_results[i] = 1 / float(total_distance_cluster_new(individual, representatives))
+    # 根据适应度得分排序，适应度得分越高（总距离的倒数越大），排名越前
     return sorted(fitness_results.items(), key=lambda x: x[1], reverse=True)
 
-def find_representative_points(clustered_points):
-    # 从每个聚类中选择一个代表点
-    representatives = []
-    for cluster in clustered_points:
-        # 这里简单地选择聚类中的第一个点作为代表点
-        representatives.append(cluster[0])
-    return representatives
+
+def total_distance_cluster_new(route, representatives):
+    # 根据 route 中指定的顺序，拼接所有点的列表
+    all_points = []
+    for cluster_number in route:
+        # all_points.extend([representatives[cluster_number][0], representatives[cluster_number][-1]])
+        all_points.extend(representatives[cluster_number])
+    # 计算拼接后的列表的总距离
+    return total_distance_1(all_points)
+
 
 def cluster_crossover(parent1, parent2):
     # 实现顺序交叉（OX）或部分映射交叉（PMX）等交叉策略
@@ -144,6 +151,7 @@ def cluster_crossover(parent1, parent2):
     child1 = parent1[:cross_point] + [x for x in parent2 if x not in parent1[:cross_point]]
     child2 = parent2[:cross_point] + [x for x in parent1 if x not in parent2[:cross_point]]
     return child1, child2
+
 
 def cluster_crossover_population(mating_pool, pop_size):
     children = []
@@ -154,6 +162,7 @@ def cluster_crossover_population(mating_pool, pop_size):
         children.extend([child1, child2])
     return children[:pop_size]
 
+
 def cluster_mutate(individual, mutation_rate):
     # 实现交换变异
     for swapped in range(len(individual)):
@@ -162,9 +171,11 @@ def cluster_mutate(individual, mutation_rate):
             individual[swapped], individual[swap_with] = individual[swap_with], individual[swapped]
     return individual
 
+
 def cluster_mutate_population(population, mutation_rate):
     mutated_pop = [cluster_mutate(individual, mutation_rate) for individual in population]
     return mutated_pop
+
 
 def connect_clusters(clustered_points, best_order):
     # 连接聚类中的点，根据best_order来确定访问代表点的顺序
@@ -172,6 +183,7 @@ def connect_clusters(clustered_points, best_order):
     for index in best_order:
         final_path.extend(clustered_points[index])
     return final_path
+
 
 def total_distance_cluster(route, representatives):
     # 计算路径的总距离
@@ -181,6 +193,7 @@ def total_distance_cluster(route, representatives):
         to_representative = representatives[route[(i + 1) % len(route)]]
         distance += np.linalg.norm(np.array(from_representative) - np.array(to_representative))
     return distance
+
 
 def cluster_genetic_algorithm(representatives, pop_size, num_generations, mutation_rate):
     pop = cluster_create_initial_population(pop_size, representatives)
@@ -203,10 +216,8 @@ def cluster_genetic_algorithm(representatives, pop_size, num_generations, mutati
     return best_route
 
 
-
-
 # 主函数
-def main(num_clusters=5,
+def main(num_clusters=25,
          pop_size=100,
          num_generations=500,  # 代数
          mutation_rate=0.01, ):  # 变异率):
@@ -223,20 +234,16 @@ def main(num_clusters=5,
         print(f"Cluster {cluster_index}: Best Path: {route}")
         print(f"Cluster {cluster_index}: Distance: {total_distance_1(route)}")
 
-    #————————————————————————————————————————
-
-    clustered_points = cluster_points(points, num_clusters)
-    representatives = find_representative_points(clustered_points)
+    # ————————————————————————————————————————
 
     # 使用遗传算法解决代表点之间的TSP问题
-    best_order = cluster_genetic_algorithm(representatives, pop_size=100, num_generations=500, mutation_rate=0.01)
+    best_order = cluster_genetic_algorithm(best_solution_per_cluster, pop_size=pop_size, num_generations=num_generations,
+                                           mutation_rate=mutation_rate)
 
     final_path = connect_clusters(clustered_points, best_order)
 
     # 打印最终路径和总距离
     print("Final path:", final_path)
-
-
 
 
 if __name__ == "__main__":
