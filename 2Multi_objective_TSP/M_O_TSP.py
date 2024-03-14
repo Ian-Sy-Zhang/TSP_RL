@@ -23,13 +23,19 @@ def load_data(filename):
         next(csvreader)  # 跳过头部
         for row in csvreader:
             x, y = float(row[1]), float(row[2])  # XCOORD YCOORD
+            points.append((x, y))
             profits.append(float(row[3]))   # PROFIT
     return points, profits
 
 
 # 初始化种群
 def create_initial_population(pop_size, num_points):
-    return [random.sample(range(num_points), num_points) for _ in range(pop_size)]
+    population = []
+    for _ in range(pop_size):
+        individual = list(range(num_points))
+        random.shuffle(individual)
+        population.append(individual)
+    return population
 
 
 # 适应度函数
@@ -89,16 +95,6 @@ def genetic_algorithm(filename, pop_size, num_generations, mutation_rate):
             next_generation.extend([mutate(child1), mutate(child2)])
         population = next_generation
 
-    '''
-    # 假设 `evaluate` 函数返回的是一个元组 (distance, profit)
-    final_fitnesses = [evaluate(individual, points, profits) for individual in population]
-    
-    # 确保所有的适应度都是元组形式
-    assert all(isinstance(fitness, tuple) and len(fitness) == 2 for fitness in final_fitnesses)
-    
-    # 通过列表推导式计算每个个体的适应度分数，并找到最大值的索引
-    best_individual_index = np.argmax([profit - distance for distance, profit in final_fitnesses])
-    '''
     final_fitnesses = [calculate_fitness(individual, points, profits) for individual in population]
     best_individual_index = np.argmax([profit - distance for distance, profit in final_fitnesses])
     best_individual = population[best_individual_index]
