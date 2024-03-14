@@ -100,7 +100,6 @@ def crossover(parents, offspring_size, crossover_rate):
             # 如果不进行交叉，则随机选择一个父代复制
             child = random.choice(parents).copy()
 
-        # 假定 'fix' 是一个函数，用于修复后代
         fix(child)
         # 将修复后的后代添加到后代列表中
         offspring.append(child)

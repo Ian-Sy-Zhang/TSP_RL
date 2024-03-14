@@ -2,6 +2,7 @@ import numpy as np
 import random
 from sklearn.cluster import KMeans
 import csv
+import pandas as pd
 
 
 # 加载客户点
@@ -81,7 +82,7 @@ def mutate(individual, mutation_rate):
 
 
 # 遗传算法函数
-def genetic_algorithm(clustered_points, pop_size, num_generations, mutation_rate):
+def genetic_algorithm(clustered_points, pop_size, num_generations, mutation_rate,crossover_rates):
     best_solution_per_cluster = {}
     for cluster_index, points_indices in clustered_points.items():
         population = create_initial_population(pop_size, len(points_indices))
@@ -195,7 +196,7 @@ def total_distance_cluster(route, representatives):
     return distance
 
 
-def cluster_genetic_algorithm(representatives, pop_size, num_generations, mutation_rate):
+def cluster_genetic_algorithm(representatives, pop_size, num_generations, mutation_rate, crossover_rates):
     pop = cluster_create_initial_population(pop_size, representatives)
     print("Initial distance: " + str(1 / cluster_rank_routes(pop, representatives)[0][1]))
 
@@ -217,17 +218,18 @@ def cluster_genetic_algorithm(representatives, pop_size, num_generations, mutati
 
 
 # 主函数
-def main(num_clusters=25,
+def run_cluster_genetic_algorithm(num_clusters=25,
          pop_size=100,
          num_generations=500,  # 代数
-         mutation_rate=0.01, ):  # 变异率):
+         mutation_rate=0.01,
+         crossover_rate=0.95):  # 变异率):
 
     # 加载数据
     points = load_data('./TSP_large.csv')
     clustered_points, _ = cluster_points(points, num_clusters)
 
     # 应用遗传算法
-    best_solution_per_cluster = genetic_algorithm(clustered_points, pop_size, num_generations, mutation_rate)
+    best_solution_per_cluster = genetic_algorithm(clustered_points, pop_size, num_generations, mutation_rate, crossover_rate)
 
     # 打印每个聚类的最佳路径和距离
     for cluster_index, route in best_solution_per_cluster.items():
@@ -238,13 +240,52 @@ def main(num_clusters=25,
 
     # 使用遗传算法解决代表点之间的TSP问题
     best_order = cluster_genetic_algorithm(best_solution_per_cluster, pop_size=pop_size, num_generations=num_generations,
-                                           mutation_rate=mutation_rate)
+                                           mutation_rate=mutation_rate, crossover_rates=crossover_rate)
 
     final_path = connect_clusters(clustered_points, best_order)
 
     # 打印最终路径和总距离
     print("Final path:", final_path)
 
+    final_distance = total_distance(final_path, points)
+
+    return final_path, final_distance
+
 
 if __name__ == "__main__":
-    main()
+    # main()
+    filename = '../TSP.csv'  # CSV文件的路径
+
+    # 待测试的参数范围
+    pop_sizes = [100, 500, 1000]
+    num_generationss = [100, 300, 500]
+    num_clusters = [5, 15, 25]
+
+    # 用于存储测试结果的列表
+    results = []
+
+    # 对每个参数进行测试
+    for pop_size in pop_sizes:
+        for num_generations in num_generationss:
+            for num_cluster in num_clusters:
+
+                    print(f"Testing with pop_size: {pop_size}, "
+                          f"num_generations: {num_generations}, ")
+
+
+                    # 运行算法并获取结果
+                    best_route, best_distance = run_cluster_genetic_algorithm(
+                        num_clusters=num_cluster, pop_size=pop_size, num_generations=num_generations)
+
+                    # 将结果添加到列表中
+                    results.append({
+                        'pop_size': pop_size,
+                        'num_generations': num_generations,
+                        'best_distance': best_distance
+                    })
+
+    # 将结果转换为DataFrame
+    results_df = pd.DataFrame(results)
+
+    # 将DataFrame保存为CSV文件
+    results_df.to_csv('tsp_results.csv', index=False)
