@@ -26,7 +26,6 @@ To run this script, you will need the following Python libraries:
 - matplotlib.pyplot
 - pandas
 
-Make sure to install these dependencies using `pip` before running the script:
 
 
 ## Usage
