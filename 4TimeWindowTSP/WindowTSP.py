@@ -183,15 +183,15 @@ def genetic_algorithm(filename, pop_size, num_generations, mutation_rate, crosso
 
 
 def run_genetic_algorithm(filename, pop_size=100, num_generations=500, mutation_rate=0.01, crossover_rate=0.95):
-    best_route, best_distance, best_distances = genetic_algorithm(filename, pop_size, num_generations, mutation_rate,
+    best_route, best_distance, best_fitnesses = genetic_algorithm(filename, pop_size, num_generations, mutation_rate,
                                                                   crossover_rate)
     print(f"The best route found is: {best_route}")
-    print(f"With a total distance of: {best_distance}")
+    print(f"With a total distance of: {best_fitnesses}")
 
     plt.figure()
     # 绘制每代的最佳距离
-    plt.plot(best_distances)
-    plt.title('Best Distance by Generation')
+    plt.plot(best_fitnesses)
+    plt.title('Best fitnesses by Generation')
     plt.xlabel('Generation')
     plt.ylabel('Distance')
     # plt.show()
@@ -200,7 +200,7 @@ def run_genetic_algorithm(filename, pop_size=100, num_generations=500, mutation_
         crossover_rate) + '.png'
     plt.savefig(plt_name)
 
-    return best_route, best_distance
+    return best_route, best_fitnesses
 
 
 # 主程序入口点

@@ -3,6 +3,9 @@ from math import sqrt
 import numpy as np
 import random
 import csv
+import itertools
+import pandas as pd
+import matplotlib.pyplot as plt
 
 
 # 计算 TSP 路线的总距离
@@ -163,16 +166,15 @@ def mfea(tasks_filenames, pop_size, num_generations, mutation_rate, crossover_ra
     return best_individuals
 
 
-def main():
-    # 定义算法参数
-    filepath1 = 'TSP_large_1.csv'
-    filepath2 = 'TSP_large.csv'
-    pop_size = 1000
-    num_generations = 12
-    mutation_rate = 0.1
-    crossover_rate = 0.2
-    min_task_proportion = [0.2, 0.2]  # 两个任务的最低比例
-
+def main(
+        # 定义算法参数
+        filepath1='TSP_large_1.csv',
+        filepath2='TSP_large.csv',
+        pop_size=1000,
+        num_generations=12,
+        mutation_rate=0.1,
+        crossover_rate=0.2,
+        min_task_proportion=[0.2, 0.2]):
     # 运行 MFEA 算法
     best_individuals = mfea(
         tasks_filenames=[filepath1, filepath2],
@@ -182,10 +184,55 @@ def main():
         crossover_rate=crossover_rate,
         min_task_proportion=min_task_proportion
     )
+
     # 打印每个任务的最佳路径和总距离
-    for idx, individual in enumerate(best_individuals):
-        print(f"Task {idx + 1} Best Practice: {individual['genome']} Total Distance: {individual['fitness']}")
+    # for idx, individual in enumerate(best_individuals):
+    #     print(f"Task {idx + 1} Best Practice: {individual['genome']} Total Distance: {individual['fitness']}")
+
+    return best_individuals
 
 
 if __name__ == '__main__':
-    main()
+    # 定义参数的测试范围
+    pop_size_options = [300, 500]
+    num_generations_options = [30, 50, 100]
+    mutation_rate_options = [0.05, 0.1]
+    crossover_rate_options = [0.1, 0.3]
+    min_task_proportion_options = [[0.2, 0.2], [0.3, 0.3]]
+
+    # 准备保存结果的列表
+    results = []
+
+    # 对每组参数运行测试
+    for pop_size in pop_size_options:
+        for num_generations in num_generations_options:
+            for mutation_rate in mutation_rate_options:
+                for crossover_rate in crossover_rate_options:
+                    for min_task_proportion in min_task_proportion_options:
+                        individuals = main(
+                            filepath1='TSP_large_1.csv',
+                            filepath2='TSP_large.csv',
+                            pop_size=pop_size,
+                            num_generations=num_generations,
+                            mutation_rate=mutation_rate,
+                            crossover_rate=crossover_rate,
+                            min_task_proportion=min_task_proportion
+                        )
+                        for idx, individual in enumerate(individuals):
+                            results.append({
+                                'pop_size': pop_size,
+                                'num_generations': num_generations,
+                                'mutation_rate': mutation_rate,
+                                'crossover_rate': crossover_rate,
+                                'min_task_proportion_1': min_task_proportion[0],
+                                'min_task_proportion_2': min_task_proportion[1],
+                                'task': idx,
+                                'best_genome': individual['genome'],
+                                'total_distance': individual['fitness']
+                            })
+
+    # 将结果转换成DataFrame
+    df_results = pd.DataFrame(results)
+
+    # 将DataFrame保存到Excel文件
+    df_results.to_csv('tsp_results.csv', index=False)

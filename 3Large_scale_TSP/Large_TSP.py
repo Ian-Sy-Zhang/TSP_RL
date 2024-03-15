@@ -247,7 +247,7 @@ def run_cluster_genetic_algorithm(num_clusters=25,
     # 打印最终路径和总距离
     print("Final path:", final_path)
 
-    final_distance = total_distance(final_path, points)
+    final_distance = total_distance_1(final_path)
 
     return final_path, final_distance
 
