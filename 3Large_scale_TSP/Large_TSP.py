@@ -281,6 +281,7 @@ if __name__ == "__main__":
                     results.append({
                         'pop_size': pop_size,
                         'num_generations': num_generations,
+                        'num_cluster': num_cluster,
                         'best_distance': best_distance
                     })
 
@@ -288,4 +289,4 @@ if __name__ == "__main__":
     results_df = pd.DataFrame(results)
 
     # 将DataFrame保存为CSV文件
-    results_df.to_csv('tsp_results.csv', index=False)
+    results_df.to_csv('tsp_results1.csv', index=False)
