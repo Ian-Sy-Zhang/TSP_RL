@@ -1,6 +1,6 @@
-# Project TSP Solutions Collection
+# TSP Solutions Collection
 
-Welcome to the TSP Solutions Collection! This repository is a comprehensive suite of applications, each tailored to tackle different variants of the Traveling Salesman Problem (TSP) using a variety of algorithms and methodologies.
+This repository is a comprehensive suite of applications, each tailored to tackle different variants of the Traveling Salesman Problem (TSP) using a variety of algorithms and methodologies.
 
 Below is the structure of the project along with brief descriptions for each sub-directory. Each sub-directory includes its own README file with detailed instructions and documentation specific to the individual project.
 
